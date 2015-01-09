@@ -54,7 +54,8 @@ int AlarmManager::ScheduleAlarm(const std::string& app_id,
   }
 
   int alarm_id = 0;
-  if (alarm->type() == AlarmInfo::ABSOLUTE) {
+  int type = alarm->type();
+  if (type == AlarmInfo::ABSOLUTE) {
     time_t tval = static_cast<time_t>(alarm->date());
     struct tm date_tm = {0};
     localtime_r(&tval, &date_tm);
@@ -65,7 +66,7 @@ int AlarmManager::ScheduleAlarm(const std::string& app_id,
       ret = alarm_schedule_at_date(service, &date_tm, alarm->period(),
           &alarm_id);
     }
-  } else if (alarm->type() == AlarmInfo::RELATIVE) {
+  } else if (type == AlarmInfo::RELATIVE) {
     ret = alarm_schedule_after_delay(service, alarm->delay(),
         alarm->period(), &alarm_id);
   }

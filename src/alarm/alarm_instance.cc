@@ -129,7 +129,7 @@ void AlarmInstance::HandleGetRemainingSeconds(const picojson::value& msg) {
   if (!ret) {
     picojson::object obj;
     obj["remainingSeconds"] = picojson::value(static_cast<double>(seconds));
-    SendSyncMessage(ret, picojson::value(obj));
+    SendSyncMessage(0, picojson::value(obj));
   } else {
     SendSyncMessage(ret, picojson::value(std::string("")));
   }
@@ -144,7 +144,7 @@ void AlarmInstance::HandleGetNextScheduledDate(const picojson::value& msg) {
   if (!ret) {
     picojson::object obj;
     obj["nextScheduledDate"] = picojson::value(static_cast<double>(date));
-    SendSyncMessage(ret, picojson::value(obj));
+    SendSyncMessage(0, picojson::value(obj));
   } else {
     SendSyncMessage(ret, picojson::value(std::string("")));
   }
@@ -165,14 +165,16 @@ void AlarmInstance::HandleGetAlarm(const picojson::value& msg) {
 
 void AlarmInstance::HandleGetAllAlarms() {
   std::vector<std::shared_ptr<AlarmInfo> > alarms;
+  picojson::array alarm_infos;
 
   int ret = alarm_manager_->GetAllAlarms(alarms);
-  picojson::array alarm_infos;
-  for (int i = 0; i < alarms.size(); i++) {
-    alarm_infos.push_back(picojson::value(alarms[i]->Serialize()));
+  if (!ret) {
+    for (int i = 0; i < alarms.size(); i++) {
+      alarm_infos.push_back(picojson::value(alarms[i]->Serialize()));
+    }
   }
 
-  SendSyncMessage(0, picojson::value(alarm_infos));
+  SendSyncMessage(ret, picojson::value(alarm_infos));
 }
 
 void AlarmInstance::HandleRemoveAlarm(const picojson::value& msg) {
